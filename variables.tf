@@ -111,6 +111,14 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.storage_management_policies : (
+        v.rule == null || alltrue([for item in v.rule : (item.filters.match_blob_index_tag == null || alltrue([for item in item.filters.match_blob_index_tag : (length(item.name) >= 1 && length(item.name) <= 128)]))])
+      )
+    ])
+    error_message = "must be between 1 and 128 characters"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.storage_management_policies : (
         v.rule == null || alltrue([for item in v.rule : (item.filters.match_blob_index_tag == null || alltrue([for item in item.filters.match_blob_index_tag : (item.operation == null || (contains(["=="], item.operation)))]))])
       )
     ])
@@ -119,10 +127,10 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.storage_management_policies : (
-        v.rule == null || alltrue([for item in v.rule : (item.filters.match_blob_index_tag == null || alltrue([for item in item.filters.match_blob_index_tag : (length(item.value) <= 256)]))])
+        v.rule == null || alltrue([for item in v.rule : (item.filters.match_blob_index_tag == null || alltrue([for item in item.filters.match_blob_index_tag : (length(item.value) >= 0 && length(item.value) <= 256)]))])
       )
     ])
-    error_message = "[from validate.StorageBlobIndexTagValue: invalid when len(value) > 256]"
+    error_message = "must be between 0 and 256 characters"
   }
   validation {
     condition = alltrue([
@@ -308,6 +316,6 @@ EOT
     ])
     error_message = "must be between 0 and 99999"
   }
-  # Note: 3 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
+  # Note: 2 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
 }
 
